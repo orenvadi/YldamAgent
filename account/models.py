@@ -4,7 +4,6 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
 
-# from pkg_resources import _
 
 ROLES = (
     ("Administrator", "Administrator"),
@@ -39,9 +38,9 @@ class CustomUserManager(
         extra_fields.setdefault("is_superuser", True)
 
         if extra_fields.get("is_staff") is not True:
-            raise ValueError(_("Superuser must have is_staff=True."))
+            raise ValueError("Superuser must have is_staff=True.")
         if extra_fields.get("is_superuser") is not True:
-            raise ValueError(_("Superuser must have is_superuser=True."))
+            raise ValueError("Superuser must have is_superuser=True.")
 
         return self._create_user(username, password, **extra_fields)
 
@@ -61,9 +60,7 @@ class Store(models.Model):  # Store-Owners can add their stores into this table
     address = models.CharField(max_length=100)
 
 
-class StoreManager(
-    models.Model
-):  # The Store Managers may be signed up by Store Owners to help them to make orders
+class StoreManager(models.Model):  # The Store Managers may be signed up by Store Owners to help them to make orders
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True
     )
@@ -122,6 +119,6 @@ class Producer(models.Model):
                 message="Phone Number",
                 code="invalid_data",
             )
-        ],
+        ], default='+996'
     )
-    product = models.ForeignKey(ProductCategory, on_delete=models.CASCADE)
+    product = models.ForeignKey(ProductCategory, on_delete=models.CASCADE, blank=True, null=True)
