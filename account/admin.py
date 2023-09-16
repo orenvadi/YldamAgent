@@ -1,7 +1,7 @@
 from django.contrib import admin
-from models import *
 
-admin.site.register(Administrator)
+from .models import *
+
 admin.site.register(StoreOwner)
 admin.site.register(StoreManager)
 admin.site.register(Producer)
