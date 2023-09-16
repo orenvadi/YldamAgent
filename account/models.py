@@ -77,7 +77,7 @@ class StoreOwner(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True
     )
     managers = models.ManyToManyField(
-        StoreManager, related_name="manager", limit_choices_to=10
+        StoreManager, related_name="manager"
     )
 
 
