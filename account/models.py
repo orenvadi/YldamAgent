@@ -15,7 +15,7 @@ ROLES = (
 
 
 class CustomUser(AbstractUser):
-    status = models.CharField(choices=ROLES, max_length=100)
+    status = models.CharField(choices=ROLES, max_length=100, blank=True)
     email = models.EmailField(
         unique=True,
         error_messages='"unique": _("A user with that email already exists.")',
@@ -78,6 +78,9 @@ class Administrator(models.Model):
 class StoreOwner(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True
+    )
+    managers = models.ManyToManyField(
+        StoreManager, related_name="manager", limit_choices_to=10
     )
 
 

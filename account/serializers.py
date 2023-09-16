@@ -1,8 +1,9 @@
-from models import *
 from rest_framework import serializers
 
+from .models import *
 
-class AdminSerializer(serializers.ModelSerializer):
+
+class AdministratorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Administrator
         fields = "__all__"
