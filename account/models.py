@@ -1,6 +1,3 @@
-from django.conf import settings
-from django.contrib.auth.base_user import BaseUserManager
-from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
 
@@ -11,38 +8,6 @@ ROLES = (
     ("Store Owner", "Store Owner"),
     ("Store Manager", "Store Manager"),
 )
-
-
-class CustomUser(AbstractUser):
-    status = models.CharField(choices=ROLES, max_length=100, blank=True)
-    email = models.EmailField(
-        unique=True,
-        error_messages='"unique": _("A user with that email already exists.")',
-        blank=True,
-        default="None",
-    )
-    can_add_orders = models.BooleanField(default=False)
-
-    class Meta:
-        swappable = "AUTH_USER_MODEL"
-
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["username", "password"]
-
-
-class CustomUserManager(
-    BaseUserManager
-):  # Is used to make a function that allows to add administrators straightly in the web-site
-    def create_superuser(self, username, password, **extra_fields):
-        extra_fields.setdefault("is_staff", True)
-        extra_fields.setdefault("is_superuser", True)
-
-        if extra_fields.get("is_staff") is not True:
-            raise ValueError("Superuser must have is_staff=True.")
-        if extra_fields.get("is_superuser") is not True:
-            raise ValueError("Superuser must have is_superuser=True.")
-
-        return self._create_user(username, password, **extra_fields)
 
 
 class Store(models.Model):  # Store-Owners can add their stores into this table
@@ -61,23 +26,115 @@ class Store(models.Model):  # Store-Owners can add their stores into this table
 
 
 class StoreManager(models.Model):  # The Store Managers may be signed up by Store Owners to help them to make orders
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True
+    username = models.CharField(
+        max_length=100,
+        unique=True,
+        error_messages={None: 'A user with that username already exists.'},
+        blank=True, default='AnonymousProducer'
+    )
+    email = models.EmailField(
+        unique=True,
+        error_messages={None: 'A user with that email already exists.'},
+        blank=True,
+        default="None",
+    )
+    password = models.CharField(
+        max_length=30,
+        null=True,
+    )
+    phone_number = models.CharField(
+        max_length=20,
+        validators=[
+            RegexValidator(
+                regex=r"^\+996\d+$",  # Phone Number (Only Kyrgyzstan)
+                message="Phone Number",
+                code="invalid_data",
+            )
+        ],
+        default='+996',
+        null=True,
+        blank=True
+    )
+    status = models.CharField(
+        choices=ROLES,
+        max_length=100,
+        default='',
     )
 
 
 class Administrator(models.Model):
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True
+    username = models.CharField(
+        max_length=100,
+        unique=True,
+        error_messages={None: 'A user with that username already exists.'},
+        blank=True, default='AnonymousProducer'
+    )
+    email = models.EmailField(
+        unique=True,
+        error_messages={None: 'A user with that email already exists.'},
+        blank=True,
+        default="None",
+    )
+    password = models.CharField(
+        max_length=30,
+        null=True,
+    )
+    phone_number = models.CharField(
+        max_length=20,
+        validators=[
+            RegexValidator(
+                regex=r"^\+996\d+$",  # Phone Number (Only Kyrgyzstan)
+                message="Phone Number",
+                code="invalid_data",
+            )
+        ],
+        default='+996',
+        null=True,
+        blank=True
+    )
+    status = models.CharField(
+        choices=ROLES,
+        max_length=100,
+        default='',
     )
 
 
 class StoreOwner(models.Model):
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True
+    username = models.CharField(
+        max_length=100,
+        unique=True,
+        error_messages={None: 'A user with that username already exists.'},
+        blank=True, default='AnonymousProducer'
+    )
+    email = models.EmailField(
+        unique=True,
+        error_messages={None: 'A user with that email already exists.'},
+        blank=True,
+        default="None",
+    )
+    password = models.CharField(
+        max_length=30,
+        null=True,
     )
     managers = models.ManyToManyField(
         StoreManager, related_name="manager"
+    )
+    phone_number = models.CharField(
+        max_length=20,
+        validators=[
+            RegexValidator(
+                regex=r"^\+996\d+$",  # Phone Number (Only Kyrgyzstan)
+                message="Phone Number",
+                code="invalid_data",
+            )
+        ],
+        default='+996',
+        null=True
+    )
+    status = models.CharField(
+        choices=ROLES,
+        max_length=100,
+        default='',
     )
 
 
@@ -96,8 +153,21 @@ class Product(models.Model):
 
 
 class Producer(models.Model):
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True
+    username = models.CharField(
+        max_length=100,
+        unique=True,
+        error_messages={None: 'A user with that username already exists.'},
+        blank=True, default='AnonymousProducer'
+    )
+    email = models.EmailField(
+        unique=True,
+        error_messages={None: 'A user with that email already exists.'},
+        blank=True,
+        default="None",
+    )
+    password = models.CharField(
+        max_length=30,
+        null=True,
     )
     TIN = models.CharField(
         max_length=10,
@@ -109,7 +179,7 @@ class Producer(models.Model):
             )
         ],
     )
-    name = models.CharField(max_length=100)
+    company_name = models.CharField(max_length=100)
     address = models.CharField(max_length=100)
     phone_number = models.CharField(
         max_length=20,
@@ -120,5 +190,10 @@ class Producer(models.Model):
                 code="invalid_data",
             )
         ], default='+996'
+    )
+    status = models.CharField(
+        choices=ROLES,
+        max_length=100,
+        default='',
     )
     product = models.ForeignKey(ProductCategory, on_delete=models.CASCADE, blank=True, null=True)
